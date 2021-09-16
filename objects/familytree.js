@@ -1,44 +1,44 @@
-function createFamilyMember(name, parents) {
-    return {
-        name,
-        parents,
-        printParents() {
-            for (let i = 0; i < this.parents.length; i++) {
-                if (this.parents[i].name === null) {
-                    console.log("N/A")
-                } else {
-                    console.log(this.parents[i].name);
-                }
+class Person {
+    constructor (name, parents) {
+        this.name = name,
+        this.parents = parents
+    }
+    printParents() {
+        for (let i = 0; i < this.parents.length; i++) {
+            if (this.parents[i].name === null) {
+                console.log("N/A")
+            } else {
+                console.log(this.parents[i].name);
             }
         }
     }
-};
+}
 
-let abraham = createFamilyMember("Abraham", [null, null]);
+let abraham = new Person("Abraham", [null, null]);
 
-let mona = createFamilyMember("Mona", [null, null]);
+let mona = new Person("Mona", [null, null]);
 
-let clancy = createFamilyMember("Clancy", [null, null]);
+let clancy = new Person("Clancy", [null, null]);
 
-let jackie = createFamilyMember("Jackie", [null, null]);
+let jackie = new Person("Jackie", [null, null]);
 
-let herb = createFamilyMember("Herb", [abraham, mona]);
+let herb = new Person("Herb", [abraham, mona]);
 
-let homer = createFamilyMember("Homer", [abraham, mona]);
+let homer = new Person("Homer", [abraham, mona]);
 
-let marge = createFamilyMember("Marge", [clancy, jackie]);
+let marge = new Person("Marge", [clancy, jackie]);
 
-let patty = createFamilyMember("Patty", [clancy, jackie]);
+let patty = new Person("Patty", [clancy, jackie]);
 
-let selma = createFamilyMember("Selma", [clancy, jackie]);
+let selma = new Person("Selma", [clancy, jackie]);
 
-let ling = createFamilyMember("Ling", [null, selma]);
+let ling = new Person("Ling", [null, selma]);
 
-let bart = createFamilyMember("Bart", [homer, marge]);
+let bart = new Person("Bart", [homer, marge]);
 
-let lisa = createFamilyMember("Lisa", [homer, marge]);
+let lisa = new Person("Lisa", [homer, marge]);
 
-let maggie = createFamilyMember("Maggie", [homer, marge]);
+let maggie = new Person("Maggie", [homer, marge]);
 
 
 console.log(maggie.name);
