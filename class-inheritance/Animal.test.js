@@ -43,3 +43,8 @@ test("Throw an error if numberOfLegs is less than 0", () => {
         new Animal("", 15, -4)
     }).toThrowError();
 })
+
+test("Birthday function works", () => {
+    testAnimal.birthday();
+    expect(testAnimal.age).toBe(16);
+})
