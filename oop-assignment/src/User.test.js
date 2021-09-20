@@ -24,11 +24,6 @@ test("Test changeName with expected input", () => {
     expect(testUser.name).toBe("New Name");
 });
 
-test("Test addPost with expected input", () => {
-    testUser.addPost(new Post("Title", "Body", testUser))
-    expect(testUser.posts.length).toBeGreaterThan(0);
-});
-
 test("changeName throws error if new name is empty", () => {
     expect(() => {
         testUser.changeName("")
@@ -38,11 +33,5 @@ test("changeName throws error if new name is empty", () => {
 test("changeName throws error if new name starts with a number", () => {
     expect(() => {
         testUser.changeName("1Jack")
-    }).toThrowError();
-});
-
-test("addPost throws error if Post is not passed", () => {
-    expect(() => {
-        testUser.addPost("")
     }).toThrowError();
 });

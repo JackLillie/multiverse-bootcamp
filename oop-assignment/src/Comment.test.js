@@ -19,19 +19,3 @@ test("throw error if User not passed", () => {
         new Comment("Text", "User")
     }).toThrowError();
 })
-
-test("reply with expected input", () => {
-    testComment.reply(new Comment("Comment Reply", testUser))
-    expect(testComment.replies.length).toBeGreaterThan(0)
-});
-
-test("delete function works", () => {
-    testComment.delete()
-    expect(typeof testComment).toBe("undefined")
-});
-
-test("reply throws error when Comment not passed", () => {
-    expect(() => {
-        testComment.reply("")
-    }).toThrowError();
-})

@@ -4,9 +4,10 @@ const Comment = require("./Comment");
 
 const testUser = new User("Test Name");
 const testPost = new Post("Title", "Body", testUser);
+const testComment = new Comment("Comment", testUser);
 
 test("Test expected input", () => {
-    expect(testPost.name).toBe("Title")
+    expect(testPost.title).toBe("Title")
 });
 
 test("throw error if title is empty", () => {
@@ -27,15 +28,21 @@ test("throw error if User not passed", () => {
     }).toThrowError();
 })
 
-test("addComment with expected input", () => {
-    testPost.addComment(new Comment("Comment", testUser))
+test("addComment function works", () => {
+    testPost.addComment(testComment, testUser)
     expect(testPost.comments.length).toBeGreaterThan(0)
 });
 
-test("delete function works", () => {
-    testPost.delete()
-    expect(typeof testPost).toBe("undefined")
+test("deleteComment function works", () => {
+    testPost.deleteComment(testComment)
+    expect(testPost).not.toContain(testComment)
 });
+
+test("deleteComment throws error when comment instance not passed", () => {
+    expect(() => {
+        testPost.deleteComment("")
+    }).toThrowError();
+})
 
 test("addComment throws error when Comment not passed", () => {
     expect(() => {
