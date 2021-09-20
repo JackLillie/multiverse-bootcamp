@@ -1,7 +1,7 @@
 const Post = require("./Post");
 
 class User {
-    constructor(name) {
+    constructor(name, isAdmin=false) {
         if (name === "") {
             throw Error("Name must not be empty");
         }
@@ -10,6 +10,7 @@ class User {
         }
         this.name = name;
         this.posts = [];
+        this.isAdmin = isAdmin;
     }
     changeName(name) {
         if (name === "") {
@@ -19,12 +20,6 @@ class User {
             throw Error("Name must not start with a number");
         }
         this.name = name;
-    }
-    addPost(post) {
-        if (!(post instanceof Post)) {
-            throw Error("You must pass a Post instance");
-        }
-        this.posts.push(post);
     }
 }
 

@@ -1,3 +1,4 @@
+const Poll = require("./Poll");
 const Post = require("./Post");
 
 class Category {
@@ -13,6 +14,12 @@ class Category {
         author.posts.push(title);
         this.posts.push(newPost);
         return newPost;
+    }
+    addPoll(title, body, options, author) {
+        let newPoll = new Poll(title, body, options, author);
+        author.posts.push(title);
+        this.posts.push(newPoll);
+        return newPoll;
     }
     deletePost(post) {
         if (!(post instanceof Post)) {
