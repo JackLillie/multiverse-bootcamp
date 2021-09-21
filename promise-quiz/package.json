@@ -1,0 +1,20 @@
+{
+  "name": "promise-quiz",
+  "version": "2.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charliemerrell/promise-quiz.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charliemerrell/promise-quiz/issues"
+  },
+  "homepage": "https://github.com/charliemerrell/promise-quiz#readme",
+  "dependencies": {}
+}
