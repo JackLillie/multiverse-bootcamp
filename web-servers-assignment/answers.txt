@@ -1,0 +1,19 @@
+A = Just static resources
+B = Just dynamic resources
+C = Both dynamic and static resources
+
+
+A new social media platform.
+C
+
+A chess engine API. Clients send it board positions as JSON and it returns moves as strings (e.g. “e2e4”).
+B
+
+A personal CV website.
+A
+
+A single player browser game.
+C
+
+An online shop
+C
