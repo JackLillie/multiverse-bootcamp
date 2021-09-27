@@ -163,7 +163,7 @@ app.get("/menus/:id", async (req, res) => {
 });
 
 //Replace a specific company
-app.patch("/companies/:id", async (req, res) => {
+app.put("/companies/:id", async (req, res) => {
   checkIdValid(req.params.id);
   if (!req.body.name || !req.body.logoUrl) {
     res.status(400).send({
@@ -200,6 +200,30 @@ app.delete("/menus/:id", async (req, res) => {
     //Delete menu
     menu.destroy();
     res.send({ message: "Menu deleted successfully" });
+  }
+});
+
+//Create a new location
+app.post("/locations", async (req, res) => {
+  if (
+    !req.body.name ||
+    !req.body.capacity ||
+    !req.body.manager ||
+    !req.body.companyId
+  ) {
+    res.status(400).send({
+      message: `Please pass a valid name, capacity, manager, and companyId`,
+    });
+  }
+  const company = await Company.findByPk(req.body.companyId);
+  if (checkCompanyExists(company, req.body.id, res)) {
+    await Location.create({
+      name: req.body.name,
+      capacity: req.body.capacity,
+      manager: req.body.manager,
+      companyId: req.body.companyId,
+    });
+    res.send({ message: "Location created successfully" });
   }
 });
 
