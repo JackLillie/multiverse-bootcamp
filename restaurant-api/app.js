@@ -3,11 +3,14 @@ const Company = require("./Company");
 const Menu = require("./Menu");
 const Location = require("./Location");
 const express = require("express");
+const sandbox = require("./sandbox");
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+sandbox();
 
 function isValidHttpUrl(string) {
   let url;
@@ -184,8 +187,8 @@ app.post("/menus", async (req, res) => {
         message: `Please pass a valid title`,
       });
     } else {
-      const company = await Company.findByPk(req.params.id);
-      if (checkCompanyExists(company, req.params.id, res)) {
+      const company = await Company.findByPk(req.body.companyId);
+      if (checkCompanyExists(company, req.body.companyId, res)) {
         await Menu.create({
           title: req.body.title,
           companyId: req.body.companyId,
@@ -210,25 +213,27 @@ app.delete("/menus/:id", async (req, res) => {
 
 //Create a new location
 app.post("/locations", async (req, res) => {
-  if (
-    !req.body.name ||
-    !req.body.capacity ||
-    !req.body.manager ||
-    !req.body.companyId
-  ) {
-    res.status(400).send({
-      message: `Please pass a valid name, capacity, manager, and companyId`,
-    });
-  } else {
-    const company = await Company.findByPk(req.body.companyId);
-    if (checkCompanyExists(company, req.body.id, res)) {
-      await Location.create({
-        name: req.body.name,
-        capacity: req.body.capacity,
-        manager: req.body.manager,
-        companyId: req.body.companyId,
+  if (checkIdValid(req.body.companyId, res)) {
+    if (
+      !req.body.name ||
+      !req.body.capacity ||
+      !req.body.manager ||
+      !req.body.companyId
+    ) {
+      res.status(400).send({
+        message: `Please pass a valid name, capacity, manager, and companyId`,
       });
-      res.send({ message: "Location created successfully" });
+    } else {
+      const company = await Company.findByPk(req.body.companyId);
+      if (checkCompanyExists(company, req.body.companyId, res)) {
+        await Location.create({
+          name: req.body.name,
+          capacity: req.body.capacity,
+          manager: req.body.manager,
+          companyId: req.body.companyId,
+        });
+        res.send({ message: "Location created successfully" });
+      }
     }
   }
 });
@@ -239,7 +244,11 @@ app.delete("/locations/:id", async (req, res) => {
     const location = await Location.findByPk(req.params.id);
     if (checkLocationExists(location, req.params.id, res)) {
       //Delete menu
-      location.destroy();
+      Location.destroy({
+        where: {
+          id: req.params.id,
+        },
+      });
       res.send({ message: "Location deleted successfully" });
     }
   }

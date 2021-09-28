@@ -1,35 +1,9 @@
 const app = require("./app");
 const request = require("supertest");
-const setupDb = require("./setupDb");
-const Company = require("./Company");
-const Menu = require("./Menu");
-const Location = require("./Location");
+const sandbox = require("./sandbox");
 
-beforeAll(async () => {
-  await setupDb();
-  const mcdonalds = await Company.create({
-    name: "McDonald's",
-    logoUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/2339px-McDonald%27s_Golden_Arches.svg.png",
-  });
-
-  const kfc = await Company.create({
-    name: "KFC",
-    logoUrl: "https://1000logos.net/wp-content/uploads/2017/03/Kfc_logo.png",
-  });
-
-  // Create a menu for each restaurant
-  const mcdonaldsDrinks = await mcdonalds.createMenu({
-    title: "Drinks",
-  });
-
-  const mcdonaldsDesserts = await mcdonalds.createMenu({
-    title: "Desserts",
-  });
-
-  const kfcStarters = await kfc.createMenu({
-    title: "Starters",
-  });
+beforeEach(async () => {
+  await sandbox();
 });
 
 describe("GET /companies", () => {
@@ -149,6 +123,7 @@ describe("POST /companies", () => {
       });
   });
 });
+
 describe("DELETE /companies/:id", () => {
   test("DELETE /companies with valid id", () => {
     return request(app)
@@ -181,4 +156,224 @@ describe("DELETE /companies/:id", () => {
       });
   });
 });
-describe("PUT /companies/:id", () => {});
+
+describe("PUT /companies/:id", () => {
+  test("PUT /companies/:id with valid input", () => {
+    return request(app)
+      .put("/companies/1")
+      .send({
+        name: "Wetherspoons",
+        logoUrl: "https://www.jdwetherspoon.com/Assets/Images/orderandpay.png",
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(200);
+      });
+  });
+
+  test("PUT /companies/:id with invalid id", () => {
+    return request(app)
+      .put("/companies/-1")
+      .send({
+        name: "Wetherspoons",
+        logoUrl: "https://www.jdwetherspoon.com/Assets/Images/orderandpay.png",
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("PUT /companies/:id with id of company that doesn't exist", () => {
+    return request(app)
+      .put("/companies/100")
+      .send({
+        name: "Wetherspoons",
+        logoUrl: "https://www.jdwetherspoon.com/Assets/Images/orderandpay.png",
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(404);
+      });
+  });
+});
+
+describe("GET /menus/:id", () => {
+  test("GET /menus/:id with valid input", () => {
+    return request(app)
+      .get("/menus/1")
+      .then((response) => {
+        expect(response.statusCode).toBe(200);
+      });
+  });
+
+  test("GET /menus/:id with negative number", () => {
+    return request(app)
+      .get("/menus/-41")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("GET /menus/:id with double", () => {
+    return request(app)
+      .get("/menus/2.5")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("GET /menus/:id with string", () => {
+    return request(app)
+      .get("/menus/asd")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+});
+
+describe("POST /menus", () => {
+  test("POST /menus with valid input", () => {
+    return request(app)
+      .post("/menus")
+      .send({
+        companyId: "1",
+        title: "Mains",
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(200);
+      });
+  });
+
+  test("POST /menus with invalid companyId", () => {
+    return request(app)
+      .post("/menus")
+      .send({
+        companyId: "-1",
+        title: "Mains",
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("POST /menus with no title", () => {
+    return request(app)
+      .post("/companies")
+      .send({
+        companyId: "1",
+        title: "",
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+});
+
+describe("DELETE /menus/:id", () => {
+  test("DELETE /menus with valid id", () => {
+    return request(app)
+      .delete("/menus/1")
+      .then((response) => {
+        expect(response.statusCode).toBe(200);
+      });
+  });
+  test("DELETE /menus with negative id", () => {
+    return request(app)
+      .delete("/menus/-1")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("DELETE /menus with double", () => {
+    return request(app)
+      .delete("/menus/2.5")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("DELETE /menus with string", () => {
+    return request(app)
+      .delete("/menus/asd")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+});
+
+describe("POST /locations", () => {
+  test("POST /locations with valid input", () => {
+    return request(app)
+      .post("/locations")
+      .send({
+        name: "London",
+        capacity: 50,
+        manager: "Jack",
+        companyId: 1,
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(200);
+      });
+  });
+
+  test("POST /locations with invalid companyId", () => {
+    return request(app)
+      .post("/locations")
+      .send({
+        name: "London",
+        capacity: 50,
+        manager: "Jack",
+        companyId: -1,
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("POST /locations with no name", () => {
+    return request(app)
+      .post("/locations")
+      .send({
+        name: "",
+        capacity: 50,
+        manager: "Jack",
+        companyId: 1,
+      })
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+});
+
+describe("DELETE /locations/:id", () => {
+  test("DELETE /locations with valid id", () => {
+    return request(app)
+      .delete("/locations/1")
+      .then((response) => {
+        expect(response.statusCode).toBe(200);
+      });
+  });
+
+  test("DELETE /locations with negative id", () => {
+    return request(app)
+      .delete("/locations/-1")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("DELETE /locations with double", () => {
+    return request(app)
+      .delete("/locations/2.5")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+
+  test("DELETE /locations with string", () => {
+    return request(app)
+      .delete("/locations/asd")
+      .then((response) => {
+        expect(response.statusCode).toBe(400);
+      });
+  });
+});
