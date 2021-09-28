@@ -2,7 +2,6 @@ const sequelize = require("./db");
 const Company = require("./Company");
 const Menu = require("./Menu");
 const Location = require("./Location");
-const setupDb = require("./setupDb");
 const express = require("express");
 
 const app = express();
@@ -10,42 +9,29 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-async function sandbox() {
-  await setupDb();
-  const mcdonalds = await Company.create({
-    name: "McDonald's",
-    logoUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/2339px-McDonald%27s_Golden_Arches.svg.png",
-  });
+function isValidHttpUrl(string) {
+  let url;
 
-  const kfc = await Company.create({
-    name: "KFC",
-    logoUrl: "https://1000logos.net/wp-content/uploads/2017/03/Kfc_logo.png",
-  });
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
 
-  // Create a menu for each restaurant
-  const mcdonaldsDrinks = await mcdonalds.createMenu({
-    title: "Drinks",
-  });
-
-  const mcdonaldsDesserts = await mcdonalds.createMenu({
-    title: "Desserts",
-  });
-
-  const kfcStarters = await kfc.createMenu({
-    title: "Starters",
-  });
+  return url.protocol === "http:" || url.protocol === "https:";
 }
 
 function checkIdValid(id, res) {
-  if (isNaN(id)) {
+  if (isNaN(id) || !Number.isInteger(Number(id))) {
     res.status(400).send({
-      message: "id must be a number",
+      message: "id must be an integer",
     });
   } else if (id < 1) {
     res.status(400).send({
       message: "id must be greated than 0",
     });
+  } else {
+    return true;
   }
 }
 
@@ -54,9 +40,9 @@ function checkCompanyExists(company, id, res) {
     res.status(404).send({
       message: `Company with id '${id}' not found`,
     });
-    return false;
+  } else {
+    return true;
   }
-  return true;
 }
 
 function checkMenuExists(menu, id, res) {
@@ -64,9 +50,9 @@ function checkMenuExists(menu, id, res) {
     res.status(404).send({
       message: `Menu with id '${id}' not found`,
     });
-    return false;
+  } else {
+    return true;
   }
-  return true;
 }
 
 function checkLocationExists(location, id, res) {
@@ -74,17 +60,15 @@ function checkLocationExists(location, id, res) {
     res.status(404).send({
       message: `Location with id '${id}' not found`,
     });
-    return false;
+  } else {
+    return true;
   }
-  return true;
 }
-
-sandbox();
 
 //Get all the companies
 app.get("/companies", async (req, res) => {
   const companies = await Company.findAll();
-  if (companies === null) {
+  if (companies.length === 0 || companies === null) {
     res.status(404).send({
       message: `No companies found`,
     });
@@ -94,112 +78,133 @@ app.get("/companies", async (req, res) => {
 
 //Get a specific company by its id
 app.get("/companies/:id", async (req, res) => {
-  checkIdValid(req.params.id, res);
-  const company = await Company.findByPk(req.params.id);
-  if (checkCompanyExists(company, req.params.id, res)) {
-    res.json(company);
+  if (checkIdValid(req.params.id, res)) {
+    const company = await Company.findByPk(req.params.id);
+    if (checkCompanyExists(company, req.params.id, res)) {
+      res.json(company);
+    }
   }
 });
 
 //Get all a company's menus
 app.get("/companies/:id/menus", async (req, res) => {
-  checkIdValid(req.params.id, res);
-  const company = await Company.findByPk(req.params.id);
-  if (checkCompanyExists(company, req.params.id, res)) {
-    const menus = await company.getMenus();
-    if (menus === null) {
-      res.status(404).send({
-        message: `No menus available for company with id '${req.params.id}'`,
-      });
-    } else {
-      res.json(menus);
+  if (checkIdValid(req.params.id, res)) {
+    const company = await Company.findByPk(req.params.id);
+    if (checkCompanyExists(company, req.params.id, res)) {
+      const menus = await company.getMenus();
+      if (menus === null) {
+        res.status(404).send({
+          message: `No menus available for company with id '${req.params.id}'`,
+        });
+      } else {
+        res.json(menus);
+      }
     }
   }
 });
 
 //Create a new company
 app.post("/companies", async (req, res) => {
-  if (!req.body.name || !req.body.logoUrl) {
+  if (
+    !req.body.name ||
+    !req.body.logoUrl ||
+    !isValidHttpUrl(req.body.logoUrl)
+  ) {
     res.status(400).send({
       message: `Please pass a valid name and logoUrl`,
     });
+  } else {
+    await Company.create({
+      name: req.body.name,
+      logoUrl: req.body.logoUrl,
+    });
+    res.send({ message: "Company created successfully" });
   }
-  await Company.create({
-    name: req.body.name,
-    logoUrl: req.body.logoUrl,
-  });
-  res.send({ message: "Company created successfully" });
 });
 
 //Delete a company
 app.delete("/companies/:id", async (req, res) => {
-  checkIdValid(req.params.id, res);
-  const company = await Company.findByPk(req.params.id);
-  if (checkCompanyExists(company, req.params.id, res)) {
-    //Delete all companies' menus
-    Menu.destroy({
-      where: {
-        companyId: req.params.id,
-      },
-    });
-    //Delete all companies' locations
-    Location.destroy({
-      where: {
-        companyId: req.params.id,
-      },
-    });
-    company.destroy();
-    res.send({ message: "Company deleted successfully" });
-  }
-});
-
-//Get a specific menu by its id
-app.get("/menus/:id", async (req, res) => {
-  checkIdValid(req.params.id, res);
-  const menu = await Menu.findByPk(req.params.id);
-  if (checkMenuExists(menu, req.params.id, res)) {
-    res.json(menu);
+  if (checkIdValid(req.params.id, res)) {
+    const company = await Company.findByPk(req.params.id);
+    if (checkCompanyExists(company, req.params.id, res)) {
+      //Delete all companies' menus
+      Menu.destroy({
+        where: {
+          companyId: req.params.id,
+        },
+      });
+      //Delete all companies' locations
+      Location.destroy({
+        where: {
+          companyId: req.params.id,
+        },
+      });
+      company.destroy();
+      res.send({ message: "Company deleted successfully" });
+    }
   }
 });
 
 //Replace a specific company
 app.put("/companies/:id", async (req, res) => {
-  checkIdValid(req.params.id);
-  if (!req.body.name || !req.body.logoUrl) {
-    res.status(400).send({
-      message: `Please pass a valid name and logoUrl`,
-    });
+  if (checkIdValid(req.params.id, res)) {
+    if (
+      !req.body.name ||
+      !req.body.logoUrl ||
+      !isValidHttpUrl(req.body.logoUrl)
+    ) {
+      res.status(400).send({
+        message: `Please pass a valid name and logoUrl`,
+      });
+    } else {
+      const company = await Company.findByPk(req.params.id);
+      if (checkCompanyExists(company, req.params.id, res)) {
+        company.update({ name: req.body.name, logoUrl: req.body.logoUrl });
+        res.send({ message: "Company updated successfully" });
+      }
+    }
   }
-  const company = await Company.findByPk(req.params.id);
-  company.update({ name: req.body.name, logoUrl: req.body.logoUrl });
-  res.send({ message: "Company updated successfully" });
+});
+
+//Get a specific menu by its id
+app.get("/menus/:id", async (req, res) => {
+  if (checkIdValid(req.params.id, res)) {
+    const menu = await Menu.findByPk(req.params.id);
+    if (checkMenuExists(menu, req.params.id, res)) {
+      res.json(menu);
+    }
+  }
 });
 
 // Create a new menu
 app.post("/menus", async (req, res) => {
-  if (!req.body.title || !req.body.companyId) {
-    res.status(400).send({
-      message: `Please pass a valid title and companyId`,
-    });
-  }
-  const company = await Company.findByPk(req.params.id);
-  if (checkCompanyExists(company, req.params.id, res)) {
-    await Menu.create({
-      title: req.body.title,
-      companyId: req.body.companyId,
-    });
-    res.send({ message: "Menu created successfully" });
+  if (checkIdValid(req.body.companyId, res)) {
+    if (!req.body.title) {
+      res.status(400).send({
+        message: `Please pass a valid title`,
+      });
+    } else {
+      const company = await Company.findByPk(req.params.id);
+      if (checkCompanyExists(company, req.params.id, res)) {
+        await Menu.create({
+          title: req.body.title,
+          companyId: req.body.companyId,
+        });
+        res.send({ message: "Menu created successfully" });
+      }
+    }
   }
 });
 
 // Delete a menu
 app.delete("/menus/:id", async (req, res) => {
-  checkIdValid(req.params.id, res);
-  const menu = await Menu.findByPk(req.params.id);
-  if (checkMenuExists(menu, req.params.id, res)) {
-    //Delete menu
-    menu.destroy();
-    res.send({ message: "Menu deleted successfully" });
+  if (checkIdValid(req.params.id, res)) {
+    const menu = await Menu.findByPk(req.params.id);
+    if (checkMenuExists(menu, req.params.id, res)) {
+      //Delete menu
+      menu.destroy();
+      res.send({ message: "Menu deleted successfully" });
+    }
   }
 });
 
@@ -214,30 +219,30 @@ app.post("/locations", async (req, res) => {
     res.status(400).send({
       message: `Please pass a valid name, capacity, manager, and companyId`,
     });
-  }
-  const company = await Company.findByPk(req.body.companyId);
-  if (checkCompanyExists(company, req.body.id, res)) {
-    await Location.create({
-      name: req.body.name,
-      capacity: req.body.capacity,
-      manager: req.body.manager,
-      companyId: req.body.companyId,
-    });
-    res.send({ message: "Location created successfully" });
+  } else {
+    const company = await Company.findByPk(req.body.companyId);
+    if (checkCompanyExists(company, req.body.id, res)) {
+      await Location.create({
+        name: req.body.name,
+        capacity: req.body.capacity,
+        manager: req.body.manager,
+        companyId: req.body.companyId,
+      });
+      res.send({ message: "Location created successfully" });
+    }
   }
 });
 
 // Delete a location
 app.delete("/locations/:id", async (req, res) => {
-  checkIdValid(req.params.id, res);
-  const location = await Location.findByPk(req.params.id);
-  if (checkLocationExists(location, req.params.id, res)) {
-    //Delete menu
-    location.destroy();
-    res.send({ message: "Location deleted successfully" });
+  if (checkIdValid(req.params.id, res)) {
+    const location = await Location.findByPk(req.params.id);
+    if (checkLocationExists(location, req.params.id, res)) {
+      //Delete menu
+      location.destroy();
+      res.send({ message: "Location deleted successfully" });
+    }
   }
 });
 
-app.listen(3000, () => {
-  console.log("Listening on port 3000");
-});
+module.exports = app;
