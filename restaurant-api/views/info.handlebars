@@ -1,0 +1,26 @@
+<h1>{{company.name}}</h1>
+<img src={{company.logoUrl}} width="200" />
+<h2>Menus</h2>
+{{#each menus}}
+  <article>
+    <label>
+      <span>{{this.title}}</span>
+    </label>
+  </article>
+{{/each}}
+
+<h2>Locations</h2>
+<table>
+  <tr>
+    <th>City</th>
+    <th>Capacity</th>
+    <th>Manager</th>
+  </tr>
+  {{#each locations}}
+    <tr>
+      <td>{{this.name}}</td>
+      <td>{{this.capacity}}</td>
+      <td>{{this.manager}}</td>
+    </tr>
+  {{/each}}
+</table>

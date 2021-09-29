@@ -4,11 +4,25 @@ const Menu = require("./Menu");
 const Location = require("./Location");
 const express = require("express");
 const sandbox = require("./sandbox");
+const path = require("path");
+const Handlebars = require("handlebars");
+const expressHandlebars = require("express-handlebars");
+const {
+  allowInsecurePrototypeAccess,
+} = require("@handlebars/allow-prototype-access");
+
+const handlebars = expressHandlebars({
+  handlebars: allowInsecurePrototypeAccess(Handlebars),
+});
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.engine("handlebars", handlebars);
+app.set("view engine", "handlebars");
+app.set("views", path.join(__dirname, "views"));
 
 sandbox();
 
@@ -67,6 +81,22 @@ function checkLocationExists(location, id, res) {
     return true;
   }
 }
+
+app.get("/", async (req, res) => {
+  const companies = await Company.findAll();
+  res.render("home", { companies });
+});
+
+app.get("/companies/:id/info", async (req, res) => {
+  if (checkIdValid(req.params.id, res)) {
+    const company = await Company.findByPk(req.params.id);
+    if (checkCompanyExists(company, req.params.id, res)) {
+      const menus = await company.getMenus();
+      const locations = await company.getLocations();
+      res.render("info", { company, menus, locations });
+    }
+  }
+});
 
 //Get all the companies
 app.get("/companies", async (req, res) => {
@@ -243,7 +273,7 @@ app.delete("/locations/:id", async (req, res) => {
   if (checkIdValid(req.params.id, res)) {
     const location = await Location.findByPk(req.params.id);
     if (checkLocationExists(location, req.params.id, res)) {
-      //Delete menu
+      //Delete location
       Location.destroy({
         where: {
           id: req.params.id,
