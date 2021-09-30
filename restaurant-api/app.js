@@ -98,6 +98,30 @@ app.get("/companies/:id/info", async (req, res) => {
   }
 });
 
+app.get("/addcompany", async (req, res) => {
+  res.render("addcompany");
+});
+
+app.get("/addmenu", async (req, res) => {
+  const companies = await Company.findAll();
+  if (companies.length === 0 || companies === null) {
+    res.status(404).send({
+      message: `No companies found`,
+    });
+  }
+  res.render("addmenu", { companies });
+});
+
+app.get("/addlocation", async (req, res) => {
+  const companies = await Company.findAll();
+  if (companies.length === 0 || companies === null) {
+    res.status(404).send({
+      message: `No companies found`,
+    });
+  }
+  res.render("addlocation", { companies });
+});
+
 //Get all the companies
 app.get("/companies", async (req, res) => {
   const companies = await Company.findAll();
@@ -151,7 +175,7 @@ app.post("/companies", async (req, res) => {
       name: req.body.name,
       logoUrl: req.body.logoUrl,
     });
-    res.send({ message: "Company created successfully" });
+    res.redirect("/");
   }
 });
 
