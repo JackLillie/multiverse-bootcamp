@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="/style.css" />
+
 <h1>{{company.name}}</h1>
 <img src={{company.logoUrl}} width="200" />
 <h2>Menus</h2>
@@ -34,11 +36,6 @@
 
 <br />
 
-<button id="deleteCompany">Delete Company</button>
+<button onclick="deleteCompany({{company.id}})">Delete Company</button>
 
-<script>
-  const deleteCompanyButton = document.getElementById("deleteCompany"); const deleteLocationButton = document.getElementById("deleteLocation"); deleteCompanyButton.addEventListener("click", () => { fetch("/companies/{{company.id}}", { method: "DELETE" }).then((response) => { if (response.status !==
-  200) { console.log("Looks like there was a problem. Status Code: " + response.status); return; } else if (response.status === 200) { document.location.href = "/"; } }); }); async function deleteLocation(id) { fetch("/locations/" + id, { method: "DELETE" }).then((response) => { if (response.status
-  !== 200) { console.log("Looks like there was a problem. Status Code: " + response.status); return; } else if (response.status === 200) { location.reload(); } }); } async function deleteMenu(id) { fetch("/menus/" + id, { method: "DELETE" }).then((response) => { if (response.status !== 200) {
-  console.log("Looks like there was a problem. Status Code: " + response.status); return; } else if (response.status === 200) { location.reload(); } }); }
-</script>
+<script src="/js/delete.js"></script>

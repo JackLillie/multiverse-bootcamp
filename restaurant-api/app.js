@@ -7,7 +7,9 @@ const sandbox = require("./sandbox");
 const path = require("path");
 const Handlebars = require("handlebars");
 const expressHandlebars = require("express-handlebars");
-const { allowInsecurePrototypeAccess } = require("@handlebars/allow-prototype-access");
+const {
+  allowInsecurePrototypeAccess,
+} = require("@handlebars/allow-prototype-access");
 
 const handlebars = expressHandlebars({
   handlebars: allowInsecurePrototypeAccess(Handlebars),
@@ -21,6 +23,8 @@ app.use(express.json());
 app.engine("handlebars", handlebars);
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "/public")));
+app.use("/js", express.static(__dirname + "/public/js"));
 
 sandbox();
 
@@ -161,7 +165,11 @@ app.get("/companies/:id/menus", async (req, res) => {
 
 //Create a new company
 app.post("/companies", async (req, res) => {
-  if (!req.body.name || !req.body.logoUrl || !isValidHttpUrl(req.body.logoUrl)) {
+  if (
+    !req.body.name ||
+    !req.body.logoUrl ||
+    !isValidHttpUrl(req.body.logoUrl)
+  ) {
     res.status(400).send({
       message: `Please pass a valid name and logoUrl`,
     });
@@ -200,7 +208,11 @@ app.delete("/companies/:id", async (req, res) => {
 //Replace a specific company
 app.put("/companies/:id", async (req, res) => {
   if (checkIdValid(req.params.id, res)) {
-    if (!req.body.name || !req.body.logoUrl || !isValidHttpUrl(req.body.logoUrl)) {
+    if (
+      !req.body.name ||
+      !req.body.logoUrl ||
+      !isValidHttpUrl(req.body.logoUrl)
+    ) {
       res.status(400).send({
         message: `Please pass a valid name and logoUrl`,
       });
@@ -259,7 +271,12 @@ app.delete("/menus/:id", async (req, res) => {
 //Create a new location
 app.post("/locations", async (req, res) => {
   if (checkIdValid(req.body.companyId, res)) {
-    if (!req.body.name || !req.body.capacity || !req.body.manager || !req.body.companyId) {
+    if (
+      !req.body.name ||
+      !req.body.capacity ||
+      !req.body.manager ||
+      !req.body.companyId
+    ) {
       res.status(400).send({
         message: `Please pass a valid name, capacity, manager, and companyId`,
       });

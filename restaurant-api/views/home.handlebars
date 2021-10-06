@@ -1,17 +1,34 @@
-<h1>Companies</h1>
+<link rel="stylesheet" href="/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap"
+  rel="stylesheet"
+/>
+
+<h1 class="title">Companies</h1>
+
+<div class="links">
+  <button onclick="window.location.href='/addcompany'">Add Company</button>
+
+  <button onclick="window.location.href='/addlocation'">Add Location</button>
+
+  <button onclick="window.location.href='/addmenu'">Add Menu</button>
+</div>
 
 {{#each companies}}
 
-  <article>
-    <label>
-      <a href="/companies/{{this.id}}/info">{{this.name}}</a>
-    </label>
-    <label>
-      <img src={{this.logoUrl}} width="200" />
-    </label>
-  </article>
-{{/each}}
+  <div class="card">
+    <a href="/companies/{{this.id}}/info" class="viewInfo">
+      <img
+        src="{{this.logoUrl}}"
+        alt="Avatar"
+        style="width:200px; margin:25px 50px;"
+      />
 
-<a href="/addcompany">Add Company</a>
-<a href="/addlocation">Add Location</a>
-<a href="/addmenu">Add Menu</a>
+      <div class="container">
+        <h4 class="companyName"><b>{{this.name}}</b></h4>
+      </div>
+    </a>
+  </div>
+{{/each}}
