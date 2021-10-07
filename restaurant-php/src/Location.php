@@ -75,5 +75,14 @@ class Location
         $this->manager = $manager;
     }
 
+    public function getCompanyId(): object
+    {
+        return $this->companyId;
+    }
 
+
+    public function setCompanyId(object $companyId): void
+    {
+        $this->companyId = $companyId;
+    }
 }

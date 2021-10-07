@@ -1,5 +1,5 @@
 <?php
-// create_company.php <name>
+// create_company.php <name> <logoUrl>
 require_once "bootstrap.php";
 
 $newCompanyName = $argv[1];
