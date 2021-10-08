@@ -1,0 +1,52 @@
+.card {
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  width: 300px;
+  margin: 50px auto;
+  border: 3px solid green;
+  border-radius: 5px;
+}
+
+.card a {
+  color: black;
+  text-decoration: none;
+}
+
+/* On mouse-over, add a deeper shadow */
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Add some padding inside the card container */
+.container {
+  padding: 2px 16px;
+}
+
+.companyName {
+  margin: 50px;
+  text-align: center;
+}
+
+.title {
+  text-align: center;
+}
+
+.links {
+  text-align: center;
+  margin: auto;
+}
+
+.links button {
+  width: 25%;
+  background-color: #04aa6d;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+h1 {
+  font-family: "Roboto Mono", monospace;
+}
